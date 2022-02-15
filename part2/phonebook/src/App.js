@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import personService from './services/persons';
+import './index.css';
 
 const Search = ({ search, searchChange }) => {
   return(
@@ -19,14 +20,41 @@ const AddNew = ({ addName, newName, nameChange, newNumber, numberChange }) => {
         Number: <input value={newNumber} onChange={numberChange} />
       </div>
       <div>
-        <button type="submit">add</button>
+        <button type="submit">Add</button>
       </div>
     </form>
   );
 }
 
-const Person = ({ name, number }) => {
-  return <><li key={name}>{name} {number}</li></>
+const Person = ({ name, number, id }) => {
+  
+  const handleClick = () => {
+    if (window.confirm(`Are you sure you want to delete ${name}`)) {
+    personService.deleteRes(id);
+    window.location.reload(false);
+    }
+  }
+  
+  return ( 
+  <>
+  <li key={id}>
+    {name} {number}
+    <button className='padding' onClick={handleClick}>Delete</button>
+  </li>
+  </>
+  )
+}
+
+const Notification = ({ message, messageClass }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className={messageClass}>
+      {message}
+    </div>
+  )
 }
 
 const App = () => {
@@ -35,12 +63,14 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('');
   const [search, setSearch] = useState('');
   const [showAll, setShowAll] = useState(true);
+  const [message, setMessage] = useState(null);
+  const [messageClass, setMessageClass] = useState('success');
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(resp => {
-        setPersons(resp.data)
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       });
   }, [])
 
@@ -63,21 +93,45 @@ const App = () => {
   const addName = (e) => {
       e.preventDefault();
       if (!persons.some(person => person.name === newName)) {
-        const nameObject = {
+        const personObject = {
           name: newName,
           number: newNumber
         }
-        setPersons(persons.concat(nameObject));
-        setNewName('');
-        setNewNumber('');
+        personService
+          .create(personObject)
+          .then(returnedPerson => {
+            setPersons(persons.concat(returnedPerson));
+            setNewName('');
+            setNewNumber('');
+          })
       } else {
-        alert(`${newName} is already in the phonebook.`);
-      }
-  } 
+        if (window.confirm(`${newName} is already in the phonebook, replace the old number with a new one?`)) {
+          let match = persons.filter(person => person.name === newName);
+          const personObject = {
+            name: newName,
+            number: newNumber
+          }
+          personService
+          .update(match[0].id, personObject)
+          .catch(err => {
+            setMessage(`${newName} was already removed from the server.`);
+            setMessageClass('error');
+          })
+          setNewName('');
+          setNewNumber('');
+          }
+        }
+        setMessage(`Added ${newName}.`);
+        setMessageClass('success');
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
+      } 
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} messageClass={messageClass} />
       <Search search={search} searchChange={searchChange} />
       <h2>Add New</h2>
       <AddNew 
@@ -90,7 +144,7 @@ const App = () => {
       <h2>Numbers</h2>
       <ul> 
         {personsToShow.map(person =>
-          <Person name={person.name} number={person.number}/>
+          <Person key={person.id} name={person.name} number={person.number} id={person.id} />
         )}
       </ul>
     </div>
