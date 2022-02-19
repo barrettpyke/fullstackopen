@@ -104,8 +104,15 @@ const App = () => {
             setNewName('');
             setNewNumber('');
           })
-      } else {
-        if (window.confirm(`${newName} is already in the phonebook, replace the old number with a new one?`)) {
+          .catch(error => {
+            let errorResp = JSON.stringify(error.response.data.error)
+            setMessage(errorResp);
+            setMessageClass('error');
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
+          })
+      } else if (window.confirm(`${newName} is already in the phonebook, replace the old number with a new one?`)) {
           let match = persons.filter(person => person.name === newName);
           const personObject = {
             name: newName,
@@ -113,20 +120,23 @@ const App = () => {
           }
           personService
           .update(match[0].id, personObject)
-          .catch(err => {
-            setMessage(`${newName} was already removed from the server.`);
+          .catch(error => {
+            let errorResp = JSON.stringify(error.response.data.error)
+            setMessage(errorResp);
             setMessageClass('error');
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
           })
-          setNewName('');
-          setNewNumber('');
-          }
-        }
-        setMessage(`Added ${newName}.`);
-        setMessageClass('success');
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000)
+      setNewName('');
+      setNewNumber('');
+      setMessage(`Added ${newName}.`);
+      setMessageClass('success');
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
       } 
+  }
 
   return (
     <div>
