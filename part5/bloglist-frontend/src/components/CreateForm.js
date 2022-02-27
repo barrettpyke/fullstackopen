@@ -1,24 +1,24 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
 const CreateForm = ({ createBlog, user }) => {
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [website, setWebsite] = useState('')
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [website, setWebsite] = useState('');
 
   const addBlog = (event) => {
-    event.preventDefault()
+    event.preventDefault();
     createBlog({
       title: title,
       author: author,
       website: website,
-      user: user
-    })
-    setTitle('')
-    setAuthor('')
-    setWebsite('')
-  }
+      user: user,
+    });
+    setTitle('');
+    setAuthor('');
+    setWebsite('');
+  };
 
-  return(
+  return (
     <div>
       <h2>Create New</h2>
       <form onSubmit={addBlog}>
@@ -52,10 +52,12 @@ const CreateForm = ({ createBlog, user }) => {
             onChange={({ target }) => setWebsite(target.value)}
           />
         </div>
-        <button id="create-button" data-testid="submit" type="submit">Create New</button>
+        <button id="create-button" data-testid="submit" type="submit">
+          Create New
+        </button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default CreateForm
+export default CreateForm;
