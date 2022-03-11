@@ -14,6 +14,9 @@ const getPatients = () => {
         occupation
     }));
 };
+const getPatient = (id) => {
+    return patients_1.default.find(patient => patient.id === id);
+};
 const addPatient = (entry) => {
     const newPatient = Object.assign({ 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -21,4 +24,4 @@ const addPatient = (entry) => {
     patients_1.default.push(newPatient);
     return newPatient;
 };
-exports.default = { getPatients, addPatient };
+exports.default = { getPatients, addPatient, getPatient };

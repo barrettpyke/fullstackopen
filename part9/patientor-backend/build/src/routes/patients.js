@@ -11,6 +11,9 @@ const router = express_1.default.Router();
 router.get('/', (_req, res) => {
     res.send(patientService_1.default.getPatients());
 });
+router.get('/:id', (req, res) => {
+    res.send(patientService_1.default.getPatient(String(req.params.id)));
+});
 router.post('/', (req, res) => {
     try {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
